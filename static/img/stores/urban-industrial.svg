@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg width="200" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <!-- GlassRain color scheme: Primary Gold (#CFA43B), Accent Blue (#67B7D1), Deep Charcoal (#1F1F1F) -->
+  <style>
+    .logo-text { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; }
+    .primary { fill: #CFA43B; }
+    .accent { fill: #67B7D1; }
+    .dark { fill: #1F1F1F; }
+  </style>
+  
+  <!-- Logo background -->
+  <rect x="10" y="10" width="180" height="180" rx="15" fill="#FCFCFC" stroke="#F2F2F2" stroke-width="2"/>
+  
+  <!-- Factory silhouette -->
+  <rect class="dark" x="50" y="70" width="30" height="70" />
+  <rect class="dark" x="85" y="60" width="30" height="80" />
+  <rect class="dark" x="120" y="80" width="30" height="60" />
+  
+  <!-- Smoke stacks -->
+  <rect class="accent" x="55" y="50" width="10" height="20" />
+  <rect class="accent" x="95" y="40" width="10" height="20" />
+  <rect class="primary" x="135" y="60" width="10" height="20" />
+  
+  <!-- Gears -->
+  <circle class="primary" cx="70" cy="50" r="12" />
+  <circle fill="#FCFCFC" cx="70" cy="50" r="4" />
+  <line x1="70" y1="40" x2="70" y2="46" stroke="#CFA43B" stroke-width="4" />
+  <line x1="70" y1="54" x2="70" y2="60" stroke="#CFA43B" stroke-width="4" />
+  <line x1="60" y1="50" x2="66" y2="50" stroke="#CFA43B" stroke-width="4" />
+  <line x1="74" y1="50" x2="80" y2="50" stroke="#CFA43B" stroke-width="4" />
+  
+  <!-- Company name -->
+  <text x="100" y="170" class="logo-text dark" text-anchor="middle" font-size="18" font-weight="bold">URBAN</text>
+  <text x="100" y="185" class="logo-text accent" text-anchor="middle" font-size="12">INDUSTRIAL</text>
+</svg>

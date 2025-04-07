@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg width="200" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <!-- GlassRain color scheme: Primary Gold (#CFA43B), Accent Blue (#67B7D1), Deep Charcoal (#1F1F1F) -->
+  <style>
+    .logo-text { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; }
+    .primary { fill: #CFA43B; }
+    .accent { fill: #67B7D1; }
+    .dark { fill: #1F1F1F; }
+  </style>
+  
+  <!-- Logo background -->
+  <rect x="10" y="10" width="180" height="180" rx="15" fill="#FCFCFC" stroke="#F2F2F2" stroke-width="2"/>
+  
+  <!-- House outline -->
+  <polygon class="dark" points="100,40 160,90 160,140 40,140 40,90" />
+  
+  <!-- Door -->
+  <rect class="accent" x="85" y="100" width="30" height="40" />
+  
+  <!-- Windows with smart screens -->
+  <rect class="primary" x="55" y="100" width="20" height="20" />
+  <rect class="primary" x="125" y="100" width="20" height="20" />
+  
+  <!-- Wifi signal -->
+  <path fill="none" stroke="#67B7D1" stroke-width="3" d="M90,70 C90,60 110,60 110,70" />
+  <path fill="none" stroke="#67B7D1" stroke-width="3" d="M85,60 C85,45 115,45 115,60" />
+  <path fill="none" stroke="#67B7D1" stroke-width="3" d="M80,50 C80,30 120,30 120,50" />
+  
+  <!-- Company name -->
+  <text x="100" y="170" class="logo-text dark" text-anchor="middle" font-size="18" font-weight="bold">SMART HOME</text>
+  <text x="100" y="185" class="logo-text accent" text-anchor="middle" font-size="12">TECH</text>
+</svg>

@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GlassRain - Home Services</title>
+    <!-- Mapbox CSS -->
+    <link href="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Helvetica+Neue:wght@400;500;700;900&display=swap');
+        
+        /* Import Helvetica Neue for GlassRain branding */
+        @font-face {
+            font-family: 'Helvetica Neue';
+            src: url('https://www.glassrainmi.com/fonts/helvetica-neue-black.woff2') format('woff2'),
+                 url('https://www.glassrainmi.com/fonts/helvetica-neue-black.woff') format('woff');
+            font-weight: 900;
+            font-style: normal;
+        }
+        
+        :root {
+            --glassrain-blue: #1E90FF;
+            --glassrain-dark-blue: #0078E7;
+            --glassrain-light-blue: #70B4FF;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+        }
+        
+        body {
+            background-color: transparent;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        /* Home scanning background animation */
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(248, 248, 248, 0.95);
+            background-image: 
+                url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="600" height="400" viewBox="0 0 600 400"><rect x="200" y="150" width="200" height="150" fill="none" stroke="%231E90FF" stroke-width="2"/><path d="M200,150 L300,80 L400,150" fill="none" stroke="%231E90FF" stroke-width="2"/><rect x="240" y="200" width="50" height="50" fill="none" stroke="%231E90FF" stroke-width="1.5"/><rect x="320" y="200" width="50" height="50" fill="none" stroke="%231E90FF" stroke-width="1.5"/><rect x="280" y="240" width="40" height="60" fill="none" stroke="%231E90FF" stroke-width="1.5"/><path d="M180,150 L200,150 M400,150 L420,150 M300,60 L300,80" stroke="%231E90FF" stroke-width="1" stroke-dasharray="5,5"/></svg>'),
+                linear-gradient(0deg, rgba(30,144,255,0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(30,144,255,0.03) 1px, transparent 1px);
+            background-size: 800px 600px, 20px 20px, 20px 20px;
+            background-position: center, center, center;
+            opacity: 0.2;
+            z-index: -2;
+        }
+        
+        /* Scanning laser line animation */
+        body::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, 
+                                        rgba(30,144,255,0) 0%, 
+                                        rgba(30,144,255,0.1) 20%, 
+                                        rgba(30,144,255,0.3) 50%, 
+                                        rgba(30,144,255,0.1) 80%, 
+                                        rgba(30,144,255,0) 100%);
+            z-index: -1;
+            animation: scan 3.5s infinite ease-in-out;
+        }
+        
+        /* Scanner dot grid */
+        .scanner-grid {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: radial-gradient(rgba(30,144,255,0.2) 1px, transparent 1px);
+            background-size: 15px 15px;
+            background-position: center;
+            z-index: -3;
+            animation: pulse 5s infinite alternate;
+        }
+        
+        @keyframes scan {
+            0% {
+                transform: translateX(-100%);
+            }
+            100% {
+                transform: translateX(100%);
+            }
+        }
+        
+        @keyframes pulse {
+            0% {
+                opacity: 0.05;
+            }
+            100% {
+                opacity: 0.15;
+            }
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 500px;
+            padding: 30px;
+            background-color: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(5px);
+            position: relative;
+            z-index: 1;
+        }
+        
+        /* Grid lines overlay to give scanning tech feel */
+        .container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(30,144,255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(30,144,255, 0.03) 1px, transparent 1px);
+            background-size: 20px 20px;
+            z-index: -1;
+            border-radius: 12px;
+        }
+        
+        h1 {
+            text-align: center;
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            font-weight: 900; /* Black weight */
+            color: var(--glassrain-blue);
+            margin-bottom: 10px;
+            font-size: 36px;
+            letter-spacing: -0.5px;
+        }
+        
+        .tagline {
+            text-align: center;
+            color: #555;
+            margin-bottom: 30px;
+            font-size: 16px;
+        }
+        
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid #ddd;
+        }
+        
+        .tab-button {
+            flex: 1;
+            padding: 12px;
+            background: #f5f5f5;
+            border: none;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+        
+        .tab-button.active {
+            background: var(--glassrain-blue);
+            color: white;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 5px;
+            color: #333;
+        }
+        
+        .address-input-container {
+            width: 100%;
+            position: relative;
+        }
+        
+        .address-input, .form-input {
+            font-size: 16px;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            width: 100%;
+        }
+        
+        .address-input:focus, .form-input:focus {
+            outline: none;
+            border-color: var(--glassrain-blue);
+        }
+        
+        .suggestions-list {
+            position: absolute;
+            width: 100%;
+            background: white;
+            border: 1px solid #ccc;
+            border-top: none;
+            border-radius: 0 0 6px 6px;
+            z-index: 10;
+            display: none;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        .suggestion-item {
+            padding: 10px;
+            cursor: pointer;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .suggestion-item:hover {
+            background-color: #f5f5f5;
+        }
+        
+        .btn-primary {
+            background-color: var(--glassrain-blue);
+            color: white;
+            font-weight: 700;
+            font-size: 16px;
+            padding: 12px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            width: 100%;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: background-color 0.2s ease, transform 0.2s ease;
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--glassrain-dark-blue);
+            transform: translateY(-1px);
+        }
+        
+        .form-footer {
+            margin-top: 20px;
+            text-align: center;
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .form-link {
+            color: var(--glassrain-blue);
+            text-decoration: none;
+            cursor: pointer;
+        }
+        
+        .form-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="scanner-grid"></div>
+    <div class="container">
+        <h1>GlassRain</h1>
+        <p class="tagline">Intelligent home services & management</p>
+        
+        <div class="tabs">
+            <button id="tab-new" class="tab-button active">New Property</button>
+            <button id="tab-returning" class="tab-button">Returning User</button>
+        </div>
+        
+        <div id="new-property-content" class="tab-content active">
+            <div class="address-input-container">
+                <label for="address-input" class="form-label">Enter Your Address</label>
+                <input type="text" id="address-input" class="address-input" placeholder="123 Main St, City, State" autocomplete="off">
+                <div class="suggestions-list" id="suggestions-list"></div>
+                <button id="analyze-property-btn" class="btn-primary">Analyze Property</button>
+            </div>
+            <p class="form-footer">
+                Already have an account? <a class="form-link" id="switch-to-returning">Sign in here</a>
+            </p>
+        </div>
+        
+        <div id="returning-user-content" class="tab-content">
+            <div class="form-group">
+                <label for="login-email" class="form-label">Email Address</label>
+                <input type="email" id="login-email" class="form-input" placeholder="your@email.com">
+            </div>
+            <div class="form-group">
+                <label for="login-password" class="form-label">Password</label>
+                <input type="password" id="login-password" class="form-input" placeholder="Your password">
+            </div>
+            <button id="login-btn" class="btn-primary">Sign In</button>
+            <p class="form-footer">
+                Need to add a new property? <a class="form-link" id="switch-to-new">Enter address</a>
+            </p>
+        </div>
+    </div>
+    
+    <!-- Mapbox JS -->
+    <script src="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Tab switching functionality
+            const tabNew = document.getElementById('tab-new');
+            const tabReturning = document.getElementById('tab-returning');
+            const newContent = document.getElementById('new-property-content');
+            const returningContent = document.getElementById('returning-user-content');
+            const switchToReturning = document.getElementById('switch-to-returning');
+            const switchToNew = document.getElementById('switch-to-new');
+            
+            function switchToNewTab() {
+                tabNew.classList.add('active');
+                tabReturning.classList.remove('active');
+                newContent.classList.add('active');
+                returningContent.classList.remove('active');
+            }
+            
+            function switchToReturningTab() {
+                tabReturning.classList.add('active');
+                tabNew.classList.remove('active');
+                returningContent.classList.add('active');
+                newContent.classList.remove('active');
+            }
+            
+            tabNew.addEventListener('click', switchToNewTab);
+            tabReturning.addEventListener('click', switchToReturningTab);
+            switchToReturning.addEventListener('click', switchToReturningTab);
+            switchToNew.addEventListener('click', switchToNewTab);
+            
+            // Address input functionality
+            const addressInput = document.getElementById('address-input');
+            const suggestionsList = document.getElementById('suggestions-list');
+            const analyzeBtn = document.getElementById('analyze-property-btn');
+            const loginBtn = document.getElementById('login-btn');
+            
+            let mapboxToken = '';
+            let selectedAddress = '';
+            
+            // Get Mapbox token
+            fetch('/api/mapbox-token')
+                .then(response => response.json())
+                .then(data => {
+                    mapboxToken = data.token;
+                })
+                .catch(error => {
+                    console.error('Error fetching Mapbox token:', error);
+                });
+            
+            // Handle address input
+            addressInput.addEventListener('input', debounce(function() {
+                const query = addressInput.value.trim();
+                
+                if (query.length < 3) {
+                    suggestionsList.style.display = 'none';
+                    return;
+                }
+                
+                // Fetch address suggestions from Mapbox
+                fetch(`https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(query)}.json?access_token=${mapboxToken}&types=address&country=US`)
+                    .then(response => response.json())
+                    .then(data => {
+                        displaySuggestions(data.features);
+                    })
+                    .catch(error => {
+                        console.error('Error fetching address suggestions:', error);
+                    });
+            }, 300));
+            
+            // Display suggestions
+            function displaySuggestions(suggestions) {
+                suggestionsList.innerHTML = '';
+                
+                if (!suggestions || suggestions.length === 0) {
+                    suggestionsList.style.display = 'none';
+                    return;
+                }
+                
+                suggestions.forEach(suggestion => {
+                    const item = document.createElement('div');
+                    item.classList.add('suggestion-item');
+                    item.textContent = suggestion.place_name;
+                    item.addEventListener('click', () => {
+                        addressInput.value = suggestion.place_name;
+                        selectedAddress = suggestion.place_name;
+                        suggestionsList.style.display = 'none';
+                    });
+                    
+                    suggestionsList.appendChild(item);
+                });
+                
+                suggestionsList.style.display = 'block';
+            }
+            
+            // Close suggestions when clicking outside
+            document.addEventListener('click', function(event) {
+                if (!addressInput.contains(event.target) && !suggestionsList.contains(event.target)) {
+                    suggestionsList.style.display = 'none';
+                }
+            });
+            
+            // Handle analyze button click
+            analyzeBtn.addEventListener('click', function() {
+                const address = selectedAddress || addressInput.value.trim();
+                
+                if (address.length < 5) {
+                    alert('Please enter a valid address.');
+                    return;
+                }
+                
+                // Show loading state
+                analyzeBtn.textContent = 'Analyzing...';
+                analyzeBtn.disabled = true;
+                
+                // Process the address
+                fetch('/api/process-address', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ address: address })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Redirect to dashboard
+                        window.location.href = '/dashboard';
+                    } else {
+                        alert(data.error || 'Error processing address. Please try again.');
+                        analyzeBtn.textContent = 'Analyze Property';
+                        analyzeBtn.disabled = false;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error processing address:', error);
+                    alert('Error processing address. Please try again.');
+                    analyzeBtn.textContent = 'Analyze Property';
+                    analyzeBtn.disabled = false;
+                });
+            });
+            
+            // Handle login button click
+            loginBtn.addEventListener('click', function() {
+                const email = document.getElementById('login-email').value.trim();
+                const password = document.getElementById('login-password').value;
+                
+                if (!email || !password) {
+                    alert('Please enter both email and password.');
+                    return;
+                }
+                
+                // Show loading state
+                loginBtn.textContent = 'Signing In...';
+                loginBtn.disabled = true;
+                
+                // Process login
+                fetch('/api/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email, password })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Redirect to dashboard
+                        window.location.href = '/dashboard';
+                    } else {
+                        alert(data.error || 'Invalid email or password. Please try again.');
+                        loginBtn.textContent = 'Sign In';
+                        loginBtn.disabled = false;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error logging in:', error);
+                    alert('Error logging in. Please try again.');
+                    loginBtn.textContent = 'Sign In';
+                    loginBtn.disabled = false;
+                });
+            });
+            
+            // Helper function: Debounce to limit function calls
+            function debounce(func, wait) {
+                let timeout;
+                return function(...args) {
+                    const context = this;
+                    clearTimeout(timeout);
+                    timeout = setTimeout(() => func.apply(context, args), wait);
+                };
+            }
+        });
+    </script>
+</body>
+</html>

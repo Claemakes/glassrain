@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GlassRain - Home Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Helvetica+Neue:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <!-- Mapbox CSS -->
+    <link href="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css" rel="stylesheet">
+    <!-- Three.js for 3D rendering -->
+    <script src="https://cdn.jsdelivr.net/npm/three@0.150.0/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.150.0/examples/js/controls/OrbitControls.js"></script>
+    <style>
+        :root {
+            --primary-color: #FFD700; /* GlassRain yellow */
+            --primary-dark: #E5C100; /* Darker yellow for hover states */
+            --dark-color: #121212;
+            --light-color: #ffffff;
+            --gray-color: #f0f0f0;
+            --text-color: #333333;
+            --accent-color: #00A3E0; /* Blue accent */
+            --accent-dark: #0089BD; /* Darker blue for hover states */
+            --success-color: #4CAF50; /* Green for success messages */
+            --warning-color: #FF9800; /* Orange for warnings */
+            --danger-color: #F44336; /* Red for errors */
+            --neutral-light: #F5F5F5; /* Light gray background */
+            --neutral-medium: #E0E0E0; /* Medium gray for borders */
+            --neutral-dark: #9E9E9E; /* Dark gray for secondary text */
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+        }
+        
+        body {
+            background-color: transparent;
+            color: var(--text-color);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0;
+        }
+        
+        /* Tabs */
+        .tabs {
+            display: flex;
+            border-bottom: 2px solid #f0f0f0;
+            margin-bottom: 20px;
+            background-color: rgba(255, 255, 255, 0.95);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        
+        .tab {
+            padding: 12px 24px;
+            cursor: pointer;
+            font-weight: 500;
+            position: relative;
+        }
+        
+        .tab.active {
+            color: var(--primary-color);
+        }
+        
+        .tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background-color: var(--primary-color);
+        }
+        
+        /* Tab content */
+        .tab-content {
+            display: none;
+            padding: 20px 0;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        /* Home tab content */
+        .home-content {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 30px;
+        }
+        
+        @media (min-width: 768px) {
+            .home-content {
+                grid-template-columns: 2fr 1fr;
+            }
+        }
+        
+        .model-view {
+            background-color: var(--gray-color);
+            border-radius: 8px;
+            height: 400px;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        #model-canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+        
+        .home-details {
+            background-color: var(--light-color);
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        
+        .home-details h3 {
+            margin-bottom: 20px;
+            font-size: 20px;
+            color: var(--dark-color);
+        }
+        
+        .detail-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .detail-item:last-child {
+            border-bottom: none;
+        }
+        
+        .detail-label {
+            font-weight: 500;
+        }
+        
+        /* Services tab content */
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        
+        .service-card {
+            background-color: var(--light-color);
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .service-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+        }
+        
+        .service-icon {
+            width: 50px;
+            height: 50px;
+            background-color: var(--primary-color);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 15px;
+        }
+        
+        .service-title {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--dark-color);
+        }
+        
+        .service-description {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 12px;
+        }
+        
+        .service-price {
+            font-size: 14px;
+            color: #333;
+            font-weight: 500;
+        }
+        
+        /* Footer */
+        .dashboard-footer {
+            text-align: center;
+            padding: 20px 0;
+            color: #888;
+            font-size: 14px;
+        }
+        
+        /* Responsive Adjustments */
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 15px;
+            }
+            
+            .tabs {
+                flex-wrap: wrap;
+            }
+            
+            .tab {
+                padding: 10px 15px;
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="tabs">
+            <div class="tab active" data-tab="home">Home</div>
+            <div class="tab" data-tab="services">Services</div>
+            <div class="tab" data-tab="ar">AR Room</div>
+            <div class="tab" data-tab="diy">DIY Projects</div>
+        </div>
+        
+        <div class="tab-content active" id="home-tab">
+            <div class="home-content">
+                <div class="model-view">
+                    <canvas id="model-canvas"></canvas>
+                </div>
+                <div class="home-details">
+                    <h3>Home Details</h3>
+                    <div class="detail-item">
+                        <span class="detail-label">Address</span>
+                        <span class="detail-value" id="home-address">123 Example St</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Square Footage</span>
+                        <span class="detail-value" id="home-size">2,200 sq ft</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Bedrooms</span>
+                        <span class="detail-value" id="home-bedrooms">4</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Bathrooms</span>
+                        <span class="detail-value" id="home-bathrooms">2.5</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Year Built</span>
+                        <span class="detail-value" id="home-year">1998</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Lot Size</span>
+                        <span class="detail-value" id="home-lot">0.25 acres</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="tab-content" id="services-tab">
+            <div class="services-grid" id="services-container">
+                <!-- Services will be populated here -->
+            </div>
+        </div>
+        
+        <div class="tab-content" id="ar-tab">
+            <div style="text-align: center; padding: 40px 20px;">
+                <h3 style="margin-bottom: 20px; font-size: 24px;">Scan Your Room in AR</h3>
+                <p style="margin-bottom: 30px; color: #666;">Use our AR scanner to map your rooms and visualize home improvement projects.</p>
+                <a href="/ar_room" style="background-color: var(--primary-color); color: var(--dark-color); padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: 600; display: inline-block;">Launch AR Scanner</a>
+            </div>
+        </div>
+        
+        <div class="tab-content" id="diy-tab">
+            <div style="text-align: center; padding: 40px 20px;">
+                <h3 style="margin-bottom: 20px; font-size: 24px;">DIY Project Assistant</h3>
+                <p style="margin-bottom: 30px; color: #666;">Get personalized DIY advice and project guidance for your home.</p>
+                <div style="max-width: 600px; margin: 0 auto; text-align: left;">
+                    <div style="margin-bottom: 20px;">
+                        <input type="text" id="diy-question" placeholder="Ask a question about DIY home projects..." style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 16px;">
+                    </div>
+                    <button id="ask-diy" style="background-color: var(--primary-color); color: var(--dark-color); padding: 12px 24px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">Ask Question</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="dashboard-footer">
+            Powered by GlassRain | Get personalized home insights
+        </div>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Tab switching functionality
+            const tabs = document.querySelectorAll('.tab');
+            const tabContents = document.querySelectorAll('.tab-content');
+            
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    // Remove active class from all tabs and contents
+                    tabs.forEach(t => t.classList.remove('active'));
+                    tabContents.forEach(content => content.classList.remove('active'));
+                    
+                    // Add active class to clicked tab and corresponding content
+                    tab.classList.add('active');
+                    const tabId = tab.getAttribute('data-tab');
+                    document.getElementById(`${tabId}-tab`).classList.add('active');
+                });
+            });
+            
+            // Initialize 3D model
+            initializeModel();
+            
+            // Load home data
+            loadHomeData();
+            
+            // Load services
+            loadServices();
+            
+            // DIY functionality
+            const diyButton = document.getElementById('ask-diy');
+            const diyInput = document.getElementById('diy-question');
+            
+            diyButton.addEventListener('click', () => {
+                const question = diyInput.value.trim();
+                if (question) {
+                    askDIYQuestion(question);
+                } else {
+                    alert('Please enter a question.');
+                }
+            });
+        });
+        
+        function initializeModel() {
+            // Canvas setup
+            const canvas = document.getElementById('model-canvas');
+            
+            // Three.js setup
+            const scene = new THREE.Scene();
+            scene.background = new THREE.Color(0xf0f0f0);
+            
+            // Create camera
+            const camera = new THREE.PerspectiveCamera(75, canvas.clientWidth / canvas.clientHeight, 0.1, 1000);
+            camera.position.set(5, 5, 5);
+            
+            // Create renderer
+            const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+            renderer.setSize(canvas.clientWidth, canvas.clientHeight);
+            
+            // Create orbit controls
+            const controls = new THREE.OrbitControls(camera, canvas);
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.05;
+            
+            // Add ambient light
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+            scene.add(ambientLight);
+            
+            // Add directional light (sun-like)
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+            directionalLight.position.set(5, 10, 5);
+            scene.add(directionalLight);
+            
+            // Create a placeholder house
+            createHouse(scene);
+            
+            // Animation loop
+            function animate() {
+                requestAnimationFrame(animate);
+                controls.update();
+                renderer.render(scene, camera);
+            }
+            
+            // Handle window resize
+            window.addEventListener('resize', () => {
+                camera.aspect = canvas.clientWidth / canvas.clientHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(canvas.clientWidth, canvas.clientHeight);
+            });
+            
+            // Start animation
+            animate();
+        }
+        
+        function createHouse(scene) {
+            // Create the main structure
+            const houseGroup = new THREE.Group();
+            
+            // Floor/ground
+            const floorGeometry = new THREE.PlaneGeometry(10, 10);
+            const floorMaterial = new THREE.MeshStandardMaterial({ color: 0x7cbe7c });
+            const floor = new THREE.Mesh(floorGeometry, floorMaterial);
+            floor.rotation.x = -Math.PI / 2;
+            floor.position.y = -0.01;
+            houseGroup.add(floor);
+            
+            // Main house body
+            const houseGeometry = new THREE.BoxGeometry(4, 2, 3);
+            const houseMaterial = new THREE.MeshStandardMaterial({ color: 0xf0f0f0 });
+            const house = new THREE.Mesh(houseGeometry, houseMaterial);
+            house.position.y = 1;
+            houseGroup.add(house);
+            
+            // Roof
+            const roofGeometry = new THREE.ConeGeometry(3, 1.5, 4);
+            const roofMaterial = new THREE.MeshStandardMaterial({ color: 0xd25b33 });
+            const roof = new THREE.Mesh(roofGeometry, roofMaterial);
+            roof.position.y = 2.75;
+            roof.rotation.y = Math.PI / 4;
+            houseGroup.add(roof);
+            
+            // Windows
+            const windowGeometry = new THREE.PlaneGeometry(0.5, 0.7);
+            const windowMaterial = new THREE.MeshStandardMaterial({ color: 0x88ccff });
+            
+            // Front windows
+            const window1 = new THREE.Mesh(windowGeometry, windowMaterial);
+            window1.position.set(-1, 1, 1.51);
+            houseGroup.add(window1);
+            
+            const window2 = new THREE.Mesh(windowGeometry, windowMaterial);
+            window2.position.set(1, 1, 1.51);
+            houseGroup.add(window2);
+            
+            // Door
+            const doorGeometry = new THREE.PlaneGeometry(0.8, 1.5);
+            const doorMaterial = new THREE.MeshStandardMaterial({ color: 0x8B4513 });
+            const door = new THREE.Mesh(doorGeometry, doorMaterial);
+            door.position.set(0, 0.75, 1.51);
+            houseGroup.add(door);
+            
+            // Add to scene
+            scene.add(houseGroup);
+            return houseGroup;
+        }
+        
+        function loadHomeData() {
+            // Placeholder - would fetch from API in real implementation
+            const homeDetailsUpdate = {
+                address: "123 Main St, Anytown, USA",
+                size: "2,250 sq ft",
+                bedrooms: "4",
+                bathrooms: "2.5",
+                year: "1995",
+                lot: "0.28 acres"
+            };
+            
+            // Update UI with home details
+            document.getElementById('home-address').textContent = homeDetailsUpdate.address;
+            document.getElementById('home-size').textContent = homeDetailsUpdate.size;
+            document.getElementById('home-bedrooms').textContent = homeDetailsUpdate.bedrooms;
+            document.getElementById('home-bathrooms').textContent = homeDetailsUpdate.bathrooms;
+            document.getElementById('home-year').textContent = homeDetailsUpdate.year;
+            document.getElementById('home-lot').textContent = homeDetailsUpdate.lot;
+        }
+        
+        function loadServices() {
+            // Placeholder data - would come from API
+            const services = [
+                {
+                    title: "Lawn Maintenance",
+                    description: "Regular lawn mowing, edging, and cleanup services.",
+                    price: "Starting at $45"
+                },
+                {
+                    title: "Roof Inspection",
+                    description: "Comprehensive roof inspection with detailed report.",
+                    price: "Starting at $150"
+                },
+                {
+                    title: "Interior Painting",
+                    description: "Professional interior painting services.",
+                    price: "Starting at $2.50/sq ft"
+                },
+                {
+                    title: "Plumbing Services",
+                    description: "Repair and maintenance for all home plumbing needs.",
+                    price: "Starting at $95"
+                }
+            ];
+            
+            // Generate service cards
+            const servicesContainer = document.getElementById('services-container');
+            
+            services.forEach(service => {
+                const serviceCard = document.createElement('div');
+                serviceCard.className = 'service-card';
+                
+                serviceCard.innerHTML = `
+                    <div class="service-icon"></div>
+                    <h3 class="service-title">${service.title}</h3>
+                    <p class="service-description">${service.description}</p>
+                    <div class="service-price">${service.price}</div>
+                `;
+                
+                servicesContainer.appendChild(serviceCard);
+            });
+        }
+        
+        function askDIYQuestion(question) {
+            // Placeholder - would send to API endpoint
+            alert(`Your question has been received: "${question}"\n\nA detailed response will be provided shortly.`);
+            document.getElementById('diy-question').value = '';
+        }
+    </script>
+</body>
+</html>

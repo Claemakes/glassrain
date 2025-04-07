@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GlassRain - Welcome</title>
+    <!-- Mapbox CSS -->
+    <link href="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css" rel="stylesheet">
+    <style>
+        /* Font imports */
+        @font-face {
+            font-family: 'Helvetica Neue';
+            src: url('https://www.glassrainmi.com/fonts/helvetica-neue-black.woff2') format('woff2'),
+                 url('https://www.glassrainmi.com/fonts/helvetica-neue-black.woff') format('woff');
+            font-weight: 900;
+            font-style: normal;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+        }
+        
+        body {
+            background-color: #000000;
+            color: #FFFFFF;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        /* Scanner dot grid */
+        .scanner-grid {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: radial-gradient(rgba(255,215,0,0.2) 1px, transparent 1px);
+            background-size: 15px 15px;
+            background-position: center;
+            z-index: -3;
+            animation: pulse 5s infinite alternate;
+        }
+        
+        /* Additional diagonal gold grid */
+        .gold-diagonal-grid {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                repeating-linear-gradient(45deg, 
+                rgba(255,215,0,0.03) 0px, 
+                rgba(255,215,0,0.03) 1px, 
+                transparent 1px, 
+                transparent 15px),
+                repeating-linear-gradient(135deg, 
+                rgba(255,215,0,0.03) 0px, 
+                rgba(255,215,0,0.03) 1px, 
+                transparent 1px, 
+                transparent 15px);
+            z-index: -4;
+        }
+        
+        @keyframes pulse {
+            0% {
+                opacity: 0.05;
+            }
+            100% {
+                opacity: 0.15;
+            }
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 500px;
+            padding: 30px;
+            background-color: rgba(0, 0, 0, 0.8);
+            border-radius: 12px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3), 
+                        0 0 30px rgba(255, 215, 0, 0.1);
+            backdrop-filter: blur(5px);
+            position: relative;
+            z-index: 1;
+            overflow: hidden;
+            border: 1px solid #D4AF37;
+        }
+        
+        /* Gold edge glow */
+        .container::after {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, 
+                                        rgba(255,215,0,0.1), 
+                                        rgba(255,215,0,0), 
+                                        rgba(255,215,0,0.1), 
+                                        rgba(255,215,0,0));
+            border-radius: 14px;
+            z-index: -1;
+            animation: edgeGlow 4s infinite linear;
+        }
+        
+        @keyframes edgeGlow {
+            0% { background-position: 0% 0%; }
+            100% { background-position: 200% 0%; }
+        }
+        
+        /* Main heading styles */
+        h1 {
+            text-align: center;
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            font-weight: 900;
+            color: #FFFFFF;
+            margin-bottom: 30px;
+            font-size: 36px;
+            letter-spacing: -0.5px;
+        }
+        
+        /* Address input styles */
+        .address-input-container {
+            width: 100%;
+            position: relative;
+            margin-bottom: 20px;
+        }
+        
+        .input-field {
+            width: 100%;
+            padding: 15px;
+            background-color: rgba(255, 255, 255, 0.9);
+            color: #000000;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .input-field:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px #FFD700, 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .suggestions-list {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            width: 100%;
+            background-color: #FFFFFF;
+            border-radius: 0 0 8px 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            z-index: 10;
+            max-height: 200px;
+            overflow-y: auto;
+            display: none;
+        }
+        
+        .suggestion-item {
+            padding: 12px 15px;
+            cursor: pointer;
+            color: #000000;
+            transition: background-color 0.2s ease;
+        }
+        
+        .suggestion-item:hover {
+            background-color: #f5f5f5;
+        }
+        
+        /* Button styles */
+        .submit-btn {
+            background-color: #FFD700;
+            color: #000000;
+            font-weight: 700;
+            font-size: 16px;
+            padding: 15px;
+            width: 100%;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .submit-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.2);
+            transition: all 0.4s ease;
+        }
+        
+        .submit-btn:hover {
+            background-color: #D4AF37;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3);
+        }
+        
+        .submit-btn:hover::before {
+            left: 100%;
+        }
+        
+        .submit-btn:active {
+            transform: translateY(1px);
+        }
+        
+        /* Loading overlay */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.5s ease;
+        }
+        
+        .loading-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        /* Loading house animation */
+        .loading-house {
+            position: relative;
+            width: 120px;
+            height: 120px;
+        }
+        
+        .loading-foundation {
+            position: absolute;
+            bottom: 0;
+            left: 10px;
+            width: 100px;
+            height: 40px;
+            background-color: #FFD700;
+            border-radius: 4px;
+            animation: pulse-foundation 1.5s infinite alternate;
+        }
+        
+        .loading-walls {
+            position: absolute;
+            bottom: 40px;
+            left: 20px;
+            width: 80px;
+            height: 50px;
+            background-color: #D4AF37;
+            animation: pulse-walls 1.5s infinite alternate 0.2s;
+        }
+        
+        .loading-roof {
+            position: absolute;
+            bottom: 90px;
+            left: 10px;
+            width: 100px;
+            height: 40px;
+            background-color: #FFD700;
+            clip-path: polygon(0% 100%, 50% 0%, 100% 100%);
+            animation: pulse-roof 1.5s infinite alternate 0.4s;
+        }
+        
+        @keyframes pulse-foundation {
+            0% { transform: scaleX(1); opacity: 0.8; }
+            100% { transform: scaleX(1.05); opacity: 1; }
+        }
+        
+        @keyframes pulse-walls {
+            0% { transform: scaleY(1); opacity: 0.8; }
+            100% { transform: scaleY(1.05); opacity: 1; }
+        }
+        
+        @keyframes pulse-roof {
+            0% { transform: translateY(0); opacity: 0.8; }
+            100% { transform: translateY(-3px); opacity: 1; }
+        }
+        
+        /* Loading text */
+        .loading-text {
+            position: absolute;
+            bottom: -40px;
+            left: 0;
+            width: 100%;
+            text-align: center;
+            color: #FFFFFF;
+            font-size: 16px;
+            font-weight: 500;
+            letter-spacing: 1px;
+        }
+        
+        /* Loading progress dots */
+        .loading-dots {
+            display: inline-block;
+        }
+        
+        .loading-dots::after {
+            content: '';
+            animation: loading-dots 1.5s infinite;
+        }
+        
+        @keyframes loading-dots {
+            0% { content: '.'; }
+            33% { content: '..'; }
+            66% { content: '...'; }
+        }
+    </style>
+</head>
+<body>
+    <div class="scanner-grid"></div>
+    <div class="gold-diagonal-grid"></div>
+    
+    <div class="container">
+        <h1>Your Home Journey Starts Here</h1>
+        
+        <div class="address-input-container">
+            <input type="text" id="address-input" class="input-field" placeholder="Enter your address" autocomplete="off">
+            <div class="suggestions-list" id="suggestions-list"></div>
+        </div>
+        
+        <button id="analyze-property-btn" class="submit-btn">Analyze Property</button>
+    </div>
+    
+    <!-- Loading overlay -->
+    <div class="loading-overlay" id="loading-overlay">
+        <div class="loading-house">
+            <div class="loading-foundation"></div>
+            <div class="loading-walls"></div>
+            <div class="loading-roof"></div>
+            <div class="loading-text">Analyzing your property<span class="loading-dots"></span></div>
+        </div>
+    </div>
+    
+    <!-- Mapbox JS -->
+    <script src="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js"></script>
+    
+    <!-- Mapbox Geocoding API -->
+    <script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.0.0/mapbox-gl-geocoder.min.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Get DOM elements
+            const addressInput = document.getElementById('address-input');
+            const suggestionsList = document.getElementById('suggestions-list');
+            const analyzeBtn = document.getElementById('analyze-property-btn');
+            const loadingOverlay = document.getElementById('loading-overlay');
+            
+            // Store selected address
+            let selectedAddress = null;
+            let mapboxToken = null;
+            
+            // Fetch Mapbox token from server
+            fetch('/api/mapbox-token')
+                .then(response => response.json())
+                .then(data => {
+                    mapboxToken = data.token;
+                })
+                .catch(error => {
+                    console.error('Error fetching Mapbox token:', error);
+                });
+            
+            // Function to search for addresses using Mapbox Geocoding API
+            function searchAddress(query) {
+                if (!mapboxToken || query.trim().length < 3) {
+                    suggestionsList.style.display = 'none';
+                    return;
+                }
+                
+                const endpoint = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(query)}.json?access_token=${mapboxToken}&country=us&types=address`;
+                
+                fetch(endpoint)
+                    .then(response => response.json())
+                    .then(data => {
+                        // Clear previous suggestions
+                        suggestionsList.innerHTML = '';
+                        
+                        if (data.features && data.features.length > 0) {
+                            // Display suggestions
+                            data.features.forEach(feature => {
+                                const item = document.createElement('div');
+                                item.className = 'suggestion-item';
+                                item.textContent = feature.place_name;
+                                
+                                item.addEventListener('click', function() {
+                                    // Update input with selected address
+                                    addressInput.value = feature.place_name;
+                                    selectedAddress = feature.place_name;
+                                    
+                                    // Hide suggestions
+                                    suggestionsList.style.display = 'none';
+                                });
+                                
+                                suggestionsList.appendChild(item);
+                            });
+                            
+                            suggestionsList.style.display = 'block';
+                        } else {
+                            suggestionsList.style.display = 'none';
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error searching for address:', error);
+                        suggestionsList.style.display = 'none';
+                    });
+            }
+            
+            // Address input event listener for autocomplete
+            addressInput.addEventListener('input', function() {
+                const query = this.value.trim();
+                selectedAddress = null;
+                
+                if (query.length >= 3) {
+                    searchAddress(query);
+                } else {
+                    suggestionsList.style.display = 'none';
+                }
+            });
+            
+            // Hide suggestions when clicking outside
+            document.addEventListener('click', function(event) {
+                if (!event.target.closest('.address-input-container')) {
+                    suggestionsList.style.display = 'none';
+                }
+            });
+            
+            // Handle analyze button click
+            analyzeBtn.addEventListener('click', function() {
+                const address = selectedAddress || addressInput.value.trim();
+                
+                if (address.length < 5) {
+                    alert('Please enter a valid address.');
+                    return;
+                }
+                
+                // Show loading overlay
+                loadingOverlay.classList.add('active');
+                
+                // Process the address
+                fetch('/api/process-address', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ address: address })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Redirect to dashboard
+                        window.location.href = '/dashboard';
+                    } else {
+                        loadingOverlay.classList.remove('active');
+                        alert(data.error || 'Error processing address. Please try again.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error processing address:', error);
+                    loadingOverlay.classList.remove('active');
+                    alert('Error processing address. Please try again.');
+                });
+            });
+        });
+    </script>
+</body>
+</html>

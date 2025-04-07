@@ -1,0 +1,1545 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GlassRain Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+          --primary-gold: #CFA43B;
+          --accent-blue: #67B7D1;
+          --deep-charcoal: #1F1F1F;
+          --soft-gray: #F2F2F2;
+          --off-white: #FCFCFC;
+          --muted-gold: #E6C878;
+        }
+
+        body {
+          font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+          margin: 0;
+          padding: 0;
+          background-color: var(--soft-gray);
+          color: var(--deep-charcoal);
+        }
+
+        /* Layout Styles */
+        .dashboard {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: 250px;
+            background-color: var(--deep-charcoal);
+            color: var(--off-white);
+            padding: 20px 0;
+            overflow-y: auto;
+        }
+
+        .main-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        /* Sidebar Styles */
+        .sidebar-logo {
+            padding: 0 20px 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .sidebar-logo h2 {
+            color: var(--primary-gold);
+            margin: 0;
+        }
+
+        .sidebar-nav {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .sidebar-nav-item {
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .sidebar-nav-item:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar-nav-item.active {
+            background-color: rgba(207, 164, 59, 0.2);
+            border-left: 3px solid var(--primary-gold);
+        }
+
+        .sidebar-nav-item i {
+            margin-right: 10px;
+            width: 20px;
+            text-align: center;
+            color: var(--primary-gold);
+        }
+
+        .sidebar-user {
+            padding: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            margin-top: 20px;
+            display: flex;
+            align-items: center;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--primary-gold);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 10px;
+            font-weight: bold;
+        }
+
+        .user-info {
+            overflow: hidden;
+        }
+
+        .user-name {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            margin: 0;
+            font-weight: bold;
+        }
+
+        .user-email {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            margin: 5px 0 0;
+            font-size: 0.8rem;
+            opacity: 0.7;
+        }
+
+        /* Dashboard Content Styles */
+        .content-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .content-title {
+            margin: 0;
+            font-size: 1.8rem;
+        }
+
+        .search-bar {
+            position: relative;
+            width: 300px;
+        }
+
+        .search-bar input {
+            width: 100%;
+            padding: 10px 15px 10px 40px;
+            border: 1px solid var(--soft-gray);
+            border-radius: 30px;
+            background-color: white;
+        }
+
+        .search-bar i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--deep-charcoal);
+            opacity: 0.5;
+        }
+
+        /* Card Styles */
+        .cards-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+        }
+
+        .card-header {
+            background-color: var(--primary-gold);
+            color: white;
+            padding: 15px 20px;
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+
+        .card-blue .card-header {
+            background-color: var(--accent-blue);
+        }
+
+        .card-content {
+            padding: 20px;
+        }
+
+        /* 3D Model Container */
+        .model-container {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+        
+        .model-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .model-title {
+            margin: 0;
+            color: var(--primary-gold);
+            font-size: 18px;
+        }
+        
+        .model-actions {
+            display: flex;
+        }
+
+        .model-action-btn {
+            background: none;
+            border: none;
+            color: var(--deep-charcoal);
+            cursor: pointer;
+            opacity: 0.7;
+            margin-left: 10px;
+            transition: opacity 0.3s;
+        }
+
+        .model-action-btn:hover {
+            opacity: 1;
+        }
+
+        .model-content {
+            height: calc(100% - 53px);
+            background-color: #f0f0f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        
+        .model-viewer {
+            width: 100%;
+            height: 300px;
+            background-color: #f5f5f5;
+            position: relative;
+        }
+        
+        .model-viewer .placeholder-model {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .property-details {
+            display: flex;
+            justify-content: space-between;
+            padding: 15px 20px;
+            background-color: #f8f8f8;
+            border-top: 1px solid #eee;
+        }
+        
+        .property-detail {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .detail-label {
+            font-size: 12px;
+            color: #777;
+            margin-bottom: 4px;
+        }
+        
+        .detail-value {
+        
+        /* Dashboard Widgets */
+        .dashboard-widgets {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .widget {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
+        
+        .widget h3 {
+            margin-top: 0;
+            color: var(--primary-gold);
+            font-size: 18px;
+            margin-bottom: 15px;
+        }
+        
+        .widget p {
+            color: var(--deep-charcoal);
+            margin-bottom: 20px;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-gold);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background-color 0.3s;
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--muted-gold);
+        }
+        
+        .activity-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .activity-list li {
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+            font-size: 14px;
+        }
+        
+        .activity-list li:last-child {
+        
+        /* Tab Content */
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        /* Services Tab Styles */
+        /* Settings Tab Styles */
+        .settings-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            padding: 20px 0;
+        }
+        
+        .settings-section {
+            background-color: #FFFFFF;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .settings-section h3 {
+            color: #1F1F1F;
+            margin-top: 0;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #E6E6E6;
+            padding-bottom: 10px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: #4A4A4A;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #DDD;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        
+        .toggle-switch {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .toggle-label {
+            font-weight: 500;
+            color: #4A4A4A;
+        }
+        
+        .toggle {
+            position: relative;
+            display: inline-block;
+            width: 52px;
+            height: 26px;
+        }
+        
+        .toggle input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 26px;
+        }
+        
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        
+        input:checked + .slider {
+            background-color: #CFA43B;
+        }
+        
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .service-card {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            transition: transform 0.3s;
+        }
+        
+        .service-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .service-card h3 {
+            margin-top: 0;
+            color: var(--primary-gold);
+        }
+        
+        /* Shop Tab Styles */
+        .stores-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .store-card {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        
+        .store-image {
+            height: 160px;
+            background-color: #f0f0f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #999;
+        }
+        
+        .store-info {
+            padding: 15px;
+        }
+        
+        .store-info h3 {
+            margin-top: 0;
+            color: var(--deep-charcoal);
+        }
+        
+        .store-rating {
+            color: var(--primary-gold);
+            margin: 5px 0;
+        }
+        
+        /* DIY Tab Styles */
+        .diy-projects {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .diy-card {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        
+        .diy-image {
+            height: 180px;
+            background-color: #f0f0f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #999;
+        }
+        
+        .diy-info {
+            padding: 15px;
+        }
+        
+        .diy-info h3 {
+            margin-top: 0;
+            color: var(--primary-gold);
+        }
+        
+        .difficulty {
+            display: flex;
+            align-items: center;
+            margin: 10px 0;
+        }
+        
+        .difficulty-label {
+            margin-right: 10px;
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .difficulty-dots {
+            display: flex;
+        }
+        
+        .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: #ddd;
+            margin-right: 4px;
+        }
+        
+        .dot.active {
+            background-color: var(--primary-gold);
+        }
+        
+        /* Settings Tab Styles */
+        .settings-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+        }
+        
+        .settings-section {
+            margin-bottom: 30px;
+        }
+        
+        .settings-section h3 {
+            color: var(--primary-gold);
+            margin-top: 0;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        
+        .form-control:focus {
+            border-color: var(--accent-blue);
+            outline: none;
+        }
+        
+        .toggle-switch {
+            display: flex;
+            align-items: center;
+        }
+        
+        .toggle-label {
+            margin-right: 10px;
+            font-weight: 500;
+        }
+        
+        .toggle {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+        }
+        
+        .toggle input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 24px;
+        }
+        
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        
+        input:checked + .slider {
+            background-color: var(--primary-gold);
+        }
+        
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+            border-bottom: none;
+        }
+            font-weight: 500;
+        }
+        /* Services Section */
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            margin: 0;
+            font-size: 1.5rem;
+        }
+
+        .section-actions {
+            display: flex;
+        }
+
+        .btn {
+            background-color: var(--primary-gold);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 8px 16px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.3s;
+            display: flex;
+            align-items: center;
+        }
+
+        .btn i {
+            margin-right: 8px;
+        }
+
+        .btn:hover {
+            background-color: var(--muted-gold);
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            border: 1px solid var(--primary-gold);
+            color: var(--primary-gold);
+        }
+
+        .btn-outline:hover {
+            background-color: rgba(207, 164, 59, 0.1);
+        }
+
+        /* Service Cards */
+        .service-card {
+            display: flex;
+            padding: 15px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            margin-bottom: 15px;
+            transition: box-shadow 0.3s;
+        }
+
+        .service-card:hover {
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .service-icon {
+            width: 50px;
+            height: 50px;
+            background-color: rgba(207, 164, 59, 0.2);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            color: var(--primary-gold);
+            font-size: 1.5rem;
+        }
+        
+        .service-icon {
+            display: flex;
+            align-items: center;
+        }
+
+        .service-action-btn {
+            background: none;
+            border: none;
+            color: var(--deep-charcoal);
+            cursor: pointer;
+            opacity: 0.5;
+            margin-left: 15px;
+            transition: opacity 0.3s;
+            font-size: 1.2rem;
+        }
+
+        .service-action-btn:hover {
+            opacity: 1;
+        }
+
+        /* Responsive Styles */
+        @media (max-width: 768px) {
+            .dashboard {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+                height: auto;
+            }
+
+            .content-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .search-bar {
+                width: 100%;
+                margin-top: 15px;
+            }
+
+            .cards-container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <div class="sidebar">
+            <div class="sidebar-logo">
+                <h2>GlassRain</h2>
+            </div>
+            
+            <ul class="sidebar-nav">
+                <li class="sidebar-nav-item active" data-tab="dashboard">
+                    <i class="fas fa-home"></i>
+                    Dashboard
+                </li>
+                <li class="sidebar-nav-item" data-tab="services">
+                    <i class="fas fa-tools"></i>
+                    Services
+                </li>
+                <li class="sidebar-nav-item" data-tab="shop">
+                    <i class="fas fa-shopping-cart"></i>
+                    Shop
+                </li>
+                <li class="sidebar-nav-item" data-tab="elevate" id="elevate-tab">
+                    <i class="fas fa-vr-cardboard"></i>
+                    Elevate
+                </li>
+                <li class="sidebar-nav-item" data-tab="diy">
+                    <i class="fas fa-lightbulb"></i>
+                    DIY Projects
+                </li>
+                <li class="sidebar-nav-item" data-tab="settings">
+                    <i class="fas fa-cog"></i>
+                    Settings
+                </li>
+            </ul>
+            
+            <div class="sidebar-user">
+                <div class="user-avatar">
+                    {{ user.name[0] if user and user.name else 'U' }}
+                </div>
+                <div class="user-info">
+                    <p class="user-name">{{ user.name if user else 'User' }}</p>
+                    <p class="user-email">{{ user.email if user else 'user@example.com' }}</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="main-content">
+            <div class="content-header">
+                <h1 class="content-title">Dashboard</h1>
+                
+                <div class="search-bar">
+                    <i class="fas fa-search"></i>
+                    <input type="text" placeholder="Search services, products, or DIY guides...">
+                </div>
+            </div>
+            
+            <div class="model-container">
+                <div class="model-header">
+                    <h2 class="model-title">Your Property</h2>
+                    
+                    <div class="model-actions">
+                        <button class="model-action-btn" title="Edit">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="model-action-btn" title="Fullscreen">
+                            <i class="fas fa-expand"></i>
+                        </button>
+                        <button class="model-action-btn" title="Take Tour">
+                            <i class="fas fa-vr-cardboard"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="model-viewer">
+                    <!-- 3D Model Viewer will be loaded here dynamically -->
+                    <img src="/static/img/placeholder-property.jpg" alt="Property Model" class="placeholder-model">
+                </div>
+                
+                <div class="property-details">
+                    <div class="property-detail">
+                        <span class="detail-label">Square Footage:</span>
+                        <span class="detail-value">2,800 sq ft</span>
+                    </div>
+                    <div class="property-detail">
+                        <span class="detail-label">Year Built:</span>
+                        <span class="detail-value">2005</span>
+                    </div>
+                    <div class="property-detail">
+                        <span class="detail-label">Last Updated:</span>
+                        <span class="detail-value">Yesterday</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Dashboard Tab Content (Active by Default) -->
+            <div id="dashboard-tab-content" class="tab-content active">
+                <div class="dashboard-widgets">
+                    <div class="widget">
+                        <h3>Upcoming Services</h3>
+                        <p>You have 2 services scheduled this month.</p>
+                        <button class="btn-primary">View Schedule</button>
+                    </div>
+                    <div class="widget">
+                        <h3>Home Health</h3>
+                        <p>Your home is in good condition. 2 maintenance items recommended.</p>
+                        <button class="btn-primary">View Report</button>
+                    </div>
+                    <div class="widget">
+                        <h3>Recent Activity</h3>
+                        <ul class="activity-list">
+                            <li>Lawn care service completed (Yesterday)</li>
+                            <li>New DIY guide viewed (2 days ago)</li>
+                            <li>Property updated with new scan (1 week ago)</li>
+                        </ul>
+                    </div>
+                </div>
+
+            <!-- Services Tab Content (Hidden by Default) -->
+            <div id="services-tab-content" class="tab-content">
+                <h2>Available Services</h2>
+                <div class="services-grid">
+                    <div class="service-card">
+                        <h3>Lawn Care & Landscaping</h3>
+                        <p>Professional lawn maintenance and landscaping services</p>
+                        <button class="btn-quote">Get Quote</button>
+                    </div>
+                    <div class="service-card">
+                        <h3>Cleaning Services</h3>
+                        <p>Home cleaning, window washing, and more</p>
+                        <button class="btn-quote">Get Quote</button>
+                    </div>
+                    <div class="service-card">
+                        <h3>Plumbing</h3>
+                        <p>Repairs, installations, and maintenance</p>
+                        <button class="btn-quote">Get Quote</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Shop Tab Content (Hidden by Default) -->
+            <div id="shop-tab-content" class="tab-content">
+                <h2>Featured Stores</h2>
+                <div class="stores-grid">
+                    <div class="store-card">
+                        <h3>Home Depot</h3>
+                        <p>Everything you need for home improvement</p>
+                        <button class="btn-shop">Shop Now</button>
+                    </div>
+                    <div class="store-card">
+                        <h3>Wayfair</h3>
+                        <p>Furniture and home goods</p>
+                        <button class="btn-shop">Shop Now</button>
+                    </div>
+                    <div class="store-card">
+                        <h3>Pottery Barn</h3>
+                        <p>High-quality furniture and decor</p>
+                        <button class="btn-shop">Shop Now</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- DIY Tab Content (Hidden by Default) -->
+            <div id="diy-tab-content" class="tab-content">
+                <h2>DIY Projects</h2>
+                <div class="diy-projects">
+                    <div class="diy-card">
+                        <h3>Backyard Fire Pit</h3>
+                        <p>Difficulty: Medium</p>
+                        <p>Create a cozy gathering spot in your backyard</p>
+                        <button class="btn-diy">View Guide</button>
+                    </div>
+                    <div class="diy-card">
+                        <h3>Kitchen Backsplash</h3>
+                        <p>Difficulty: Medium</p>
+                        <p>Update your kitchen with a new backsplash</p>
+                        <button class="btn-diy">View Guide</button>
+                    </div>
+                    <div class="diy-card">
+                        <h3>Bathroom Remodel</h3>
+                        <p>Difficulty: Hard</p>
+                        <p>Transform your bathroom with a complete remodel</p>
+                        <button class="btn-diy">View Guide</button>
+                    </div>
+                </div>
+            </div>
+                            <i class="fas fa-street-view"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="model-content">
+                    <div style="text-align: center;">
+                        <i class="fas fa-cube" style="font-size: 64px; color: var(--deep-charcoal); opacity: 0.3;"></i>
+                        <p>3D model of your property will appear here</p>
+                        <button class="btn">
+                            <i class="fas fa-sync"></i>
+            <!-- Elevate Tab Content (Hidden by Default) -->
+            <div id="settings-tab-content" class="tab-content">
+                <h2>Account Settings</h2>
+                <div class="settings-container">
+                    <div class="settings-section">
+                        <h3>Profile Information</h3>
+                        <div class="form-group">
+                            <label for="name">Name</label>
+                            <input type="text" id="name" class="form-control" value="John Doe">
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email</label>
+                            <input type="email" id="email" class="form-control" value="john.doe@example.com">
+                        </div>
+                        <div class="form-group">
+                            <label for="phone">Phone</label>
+                            <input type="tel" id="phone" class="form-control" value="(555) 123-4567">
+                        </div>
+                        <button class="btn-primary">Save Changes</button>
+                    </div>
+                    
+                    <div class="settings-section">
+                        <h3>Property Details</h3>
+                        <div class="form-group">
+                            <label for="address">Address</label>
+                            <input type="text" id="address" class="form-control" value="123 Main St, Anytown, CA 12345">
+                        </div>
+                        <div class="form-group">
+                            <label for="property-type">Property Type</label>
+                            <select id="property-type" class="form-control">
+                                <option selected>Single Family Home</option>
+                                <option>Townhouse</option>
+                                <option>Condominium</option>
+                                <option>Apartment</option>
+                            </select>
+                        </div>
+                        <button class="btn-primary">Update Property</button>
+                    </div>
+                    
+                    <div class="settings-section">
+                        <h3>Notification Preferences</h3>
+                        <div class="toggle-switch">
+                            <span class="toggle-label">Email Notifications</span>
+                            <label class="toggle">
+                                <input type="checkbox" checked>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        <div class="toggle-switch" style="margin-top: 15px;">
+                            <span class="toggle-label">SMS Notifications</span>
+                            <label class="toggle">
+                                <input type="checkbox" checked>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        <div class="toggle-switch" style="margin-top: 15px;">
+                            <span class="toggle-label">Maintenance Reminders</span>
+                            <label class="toggle">
+                                <input type="checkbox" checked>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="settings-section">
+                        <h3>Privacy & Security</h3>
+                        <div class="form-group">
+                            <label for="old-password">Current Password</label>
+                            <input type="password" id="old-password" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label for="new-password">New Password</label>
+                            <input type="password" id="new-password" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label for="confirm-password">Confirm New Password</label>
+                            <input type="password" id="confirm-password" class="form-control">
+                        </div>
+                        <button class="btn-primary">Update Password</button>
+                    </div>
+                </div>
+            </div>
+
+<!-- Elevate tab content for GlassRain Dashboard -->
+<div id="elevate-tab-content" class="tab-content">
+    <!-- Header with room/version controls -->
+    <div class="elevate-header">
+        <div class="elevate-tools">
+            <div class="room-selector-container">
+                <label for="room-selector">Room:</label>
+                <select id="room-selector">
+                    <option value="living-room">Living Room</option>
+                    <option value="bedroom">Bedroom</option>
+                    <option value="kitchen">Kitchen</option>
+                    <option value="bathroom">Bathroom</option>
+                    <option value="office">Home Office</option>
+                    <option value="dining">Dining Room</option>
+                </select>
+            </div>
+            
+            <div class="version-container">
+                <button id="save-version-btn" class="gold-button">Save Version</button>
+                <select id="versions-dropdown">
+                    <option value="">-- Saved Versions --</option>
+                </select>
+                <button id="load-btn" class="secondary-button">Load</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Main content area -->
+    <div class="elevate-main">
+        <!-- Room view area with 2D representation -->
+        <div class="room-view">
+            <div id="room-display" class="room-display"></div>
+            <div class="room-controls">
+                <button class="room-control-btn" id="clear-room-btn" title="Clear Room">
+                    <i class="fas fa-trash"></i> Clear Room
+                </button>
+            </div>
+        </div>
+        
+        <!-- Right sidebar with products and cart -->
+        <div class="product-sidebar">
+            <!-- Filter controls -->
+            <div class="filter-controls">
+                <h3>Product Filters</h3>
+                <div class="filter-group">
+                    <label for="category-filter">Category:</label>
+                    <select id="category-filter">
+                        <option value="all">All Categories</option>
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <label for="store-filter">Store:</label>
+                    <select id="store-filter">
+                        <option value="all">All Stores</option>
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <label for="price-slider">Max Price: <span id="price-display">$0 - $1000</span></label>
+                    <input type="range" id="price-slider" min="0" max="10000" value="10000">
+                </div>
+                
+                <div class="filter-group">
+                    <label for="search-products">Search:</label>
+                    <input type="text" id="search-products" placeholder="Search products...">
+                </div>
+                
+                <button id="reset-filters" class="reset-button">Reset Filters</button>
+            </div>
+            
+            <!-- Products list -->
+            <div class="products-container">
+                <h3>Products</h3>
+                <div id="products-list" class="products-list">
+                    <!-- Product cards will be dynamically added here -->
+                </div>
+            </div>
+            
+            <!-- Shopping cart -->
+            <div class="cart-container">
+                <h3>Shopping Cart (<span id="cart-count">0</span>)</h3>
+                <div id="cart-items" class="cart-items">
+                    <!-- Cart items will be dynamically added here -->
+                    <div class="empty-cart">Your cart is empty</div>
+                </div>
+                <div class="cart-summary">
+                    <div class="cart-total">
+                        Total: <span id="cart-total">$0.00</span>
+                    </div>
+                    <div class="cart-actions">
+                        <button id="checkout-btn" class="gold-button">Checkout</button>
+                        <button id="clear-cart-btn" class="secondary-button">Clear</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Toast message container for notifications -->
+    <div id="toast-container"></div>
+</div>
+
+<!-- Include the Elevate JS and CSS -->
+<link rel="stylesheet" href="{{ url_for('static', filename='elevate.css') }}">
+<script src="{{ url_for('static', filename='elevate_new.js') }}"></script>
+                            Generate Model
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="cards-container">
+                <div class="card">
+                    <div class="card-header">Property Details</div>
+                    <div class="card-content">
+                        <table style="width: 100%;">
+                            <tr>
+                                <td style="padding-bottom: 10px; opacity: 0.7;">Address:</td>
+                                <td style="padding-bottom: 10px; text-align: right; font-weight: bold;">123 Main St</td>
+                            </tr>
+                            <tr>
+                                <td style="padding-bottom: 10px; opacity: 0.7;">Square Footage:</td>
+                                <td style="padding-bottom: 10px; text-align: right; font-weight: bold;">2,450 sq ft</td>
+                            </tr>
+                            <tr>
+                                <td style="padding-bottom: 10px; opacity: 0.7;">Property Type:</td>
+                                <td style="padding-bottom: 10px; text-align: right; font-weight: bold;">Single Family</td>
+                            </tr>
+                            <tr>
+                                <td style="opacity: 0.7;">Last Updated:</td>
+                                <td style="text-align: right; font-weight: bold;">Today</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+                
+                <div class="card card-blue">
+                    <div class="card-header">Upcoming Services</div>
+                    <div class="card-content">
+                        <p style="text-align: center; opacity: 0.7; margin: 20px 0;">
+                            No upcoming services scheduled
+                        </p>
+                        <button class="btn" style="width: 100%;">
+                            <i class="fas fa-calendar-plus"></i>
+                            Schedule Service
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">Recent Activity</div>
+                    <div class="card-content">
+                        <div style="margin-bottom: 15px; display: flex; align-items: flex-start;">
+                            <i class="fas fa-home" style="margin-right: 10px; color: var(--primary-gold);"></i>
+                            <div>
+                                <p style="margin: 0; font-weight: bold;">Property Added</p>
+                                <p style="margin: 5px 0 0; font-size: 0.8rem; opacity: 0.7;">Today</p>
+                            </div>
+                        </div>
+                        <div style="margin-bottom: 15px; display: flex; align-items: flex-start;">
+                            <i class="fas fa-user" style="margin-right: 10px; color: var(--accent-blue);"></i>
+                            <div>
+                                <p style="margin: 0; font-weight: bold;">Account Created</p>
+                                <p style="margin: 5px 0 0; font-size: 0.8rem; opacity: 0.7;">Today</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="section-header">
+                <h2 class="section-title">Recommended Services</h2>
+                
+                <div class="section-actions">
+                    <button class="btn btn-outline" style="margin-right: 10px;">
+                        <i class="fas fa-filter"></i>
+                        Filter
+                    </button>
+                    <button class="btn">
+                        <i class="fas fa-th-large"></i>
+                        View All
+                    </button>
+                </div>
+            </div>
+            
+            <div>
+                <div class="service-card">
+                    <div class="service-icon">
+                        <i class="fas fa-cut"></i>
+                    </div>
+                    <div class="service-info">
+                        <h3 class="service-title">Lawn Care</h3>
+                        <p class="service-description">Professional lawn mowing and maintenance for your property</p>
+                    </div>
+                    <div class="service-actions">
+                        <span style="font-weight: bold;">$85</span>
+                        <button class="service-action-btn" title="Add to Cart">
+                            <i class="fas fa-plus-circle"></i>
+                        </button>
+                        <button class="service-action-btn" title="Learn More">
+                            <i class="fas fa-info-circle"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="service-card">
+                    <div class="service-icon">
+                        <i class="fas fa-broom"></i>
+                    </div>
+                    <div class="service-info">
+                        <h3 class="service-title">Home Cleaning</h3>
+                        <p class="service-description">Comprehensive cleaning service for all rooms and surfaces</p>
+                    </div>
+                    <div class="service-actions">
+                        <span style="font-weight: bold;">$180</span>
+                        <button class="service-action-btn" title="Add to Cart">
+                            <i class="fas fa-plus-circle"></i>
+                        </button>
+                        <button class="service-action-btn" title="Learn More">
+                            <i class="fas fa-info-circle"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="service-card">
+                    <div class="service-icon">
+                        <i class="fas fa-thermometer-half"></i>
+                    </div>
+                    <div class="service-info">
+                        <h3 class="service-title">HVAC Maintenance</h3>
+                        <p class="service-description">Complete system check and tune-up to ensure efficiency</p>
+                    </div>
+                    <div class="service-actions">
+                        <span style="font-weight: bold;">$149</span>
+                        <button class="service-action-btn" title="Add to Cart">
+                            <i class="fas fa-plus-circle"></i>
+                        </button>
+                        <button class="service-action-btn" title="Learn More">
+                            <i class="fas fa-info-circle"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Store and Products Section -->
+            <div class="section-header">
+                <h2 class="section-title">Featured Stores</h2>
+                
+                <div class="section-actions">
+                    <button class="btn">
+                        <i class="fas fa-store"></i>
+                        Browse All Stores
+                    </button>
+                </div>
+            </div>
+            
+            <div class="cards-container">
+                <div class="card" style="cursor: pointer;">
+                    <div style="height: 120px; display: flex; align-items: center; justify-content: center; background-color: var(--soft-gray); border-top-left-radius: 8px; border-top-right-radius: 8px;">
+                        <img src="/static/img/stores/modern-home.svg" alt="Modern Home Furnishings" style="max-height: 100px; max-width: 80%;">
+                    </div>
+                    <div class="card-content">
+                        <h3 style="margin: 0 0 10px; font-size: 1.1rem;">Modern Home Furnishings</h3>
+                        <p style="margin: 0; font-size: 0.9rem; opacity: 0.7;">Contemporary furniture with clean lines and bold colors</p>
+                        <div style="margin-top: 15px; display: flex; justify-content: space-between;">
+                            <span style="font-size: 0.8rem; opacity: 0.7;">24 products</span>
+                            <button class="btn-outline" style="padding: 5px 10px; font-size: 0.8rem;">
+                                View Store
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card" style="cursor: pointer;">
+                    <div style="height: 120px; display: flex; align-items: center; justify-content: center; background-color: var(--soft-gray); border-top-left-radius: 8px; border-top-right-radius: 8px;">
+                        <img src="/static/img/stores/coastal-living.svg" alt="Coastal Living" style="max-height: 100px; max-width: 80%;">
+                    </div>
+                    <div class="card-content">
+                        <h3 style="margin: 0 0 10px; font-size: 1.1rem;">Coastal Living</h3>
+                        <p style="margin: 0; font-size: 0.9rem; opacity: 0.7;">Beach-inspired décor to bring the ocean indoors</p>
+                        <div style="margin-top: 15px; display: flex; justify-content: space-between;">
+                            <span style="font-size: 0.8rem; opacity: 0.7;">18 products</span>
+                            <button class="btn-outline" style="padding: 5px 10px; font-size: 0.8rem;">
+                                View Store
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card" style="cursor: pointer;">
+                    <div style="height: 120px; display: flex; align-items: center; justify-content: center; background-color: var(--soft-gray); border-top-left-radius: 8px; border-top-right-radius: 8px;">
+                        <img src="/static/img/stores/smart-home.svg" alt="Smart Home Tech" style="max-height: 100px; max-width: 80%;">
+                    </div>
+                    <div class="card-content">
+                        <h3 style="margin: 0 0 10px; font-size: 1.1rem;">Smart Home Tech</h3>
+                        <p style="margin: 0; font-size: 0.9rem; opacity: 0.7;">Cutting-edge home automation and smart devices</p>
+                        <div style="margin-top: 15px; display: flex; justify-content: space-between;">
+                            <span style="font-size: 0.8rem; opacity: 0.7;">15 products</span>
+                            <button class="btn-outline" style="padding: 5px 10px; font-size: 0.8rem;">
+                                View Store
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Products Section -->
+            <div class="section-header">
+                <h2 class="section-title">AR-Ready Products</h2>
+                
+                <div class="section-actions">
+                    <button class="btn btn-outline" style="margin-right: 10px;">
+                        <i class="fas fa-filter"></i>
+                        Filter
+                    </button>
+                    <button class="btn">
+                        <i class="fas fa-th-large"></i>
+                        All Products
+                    </button>
+                </div>
+            </div>
+            
+            <div class="cards-container">
+                <div class="card" style="cursor: pointer;">
+                    <div style="height: 180px; display: flex; align-items: center; justify-content: center; background-color: var(--soft-gray); border-top-left-radius: 8px; border-top-right-radius: 8px; position: relative;">
+                        <i class="fas fa-couch" style="font-size: 64px; color: var(--primary-gold);"></i>
+                        <span style="position: absolute; top: 10px; right: 10px; background-color: var(--accent-blue); color: white; padding: 5px 10px; border-radius: 4px; font-size: 0.8rem; font-weight: bold;">AR Ready</span>
+                    </div>
+                    <div class="card-content">
+                        <h3 style="margin: 0 0 5px; font-size: 1.1rem;">Modular Sectional Sofa</h3>
+                        <p style="margin: 0 0 10px; font-size: 0.9rem; opacity: 0.7;">Modern Home Furnishings</p>
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <span style="font-weight: bold; font-size: 1.2rem;">$1,299.99</span>
+                            <div>
+                                <button class="service-action-btn" title="Try in AR" style="color: var(--accent-blue); opacity: 1;">
+                                    <i class="fas fa-vr-cardboard"></i>
+                                </button>
+                                <button class="service-action-btn" title="Add to Cart" style="color: var(--primary-gold); opacity: 1;">
+                                    <i class="fas fa-cart-plus"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card" style="cursor: pointer;">
+                    <div style="height: 180px; display: flex; align-items: center; justify-content: center; background-color: var(--soft-gray); border-top-left-radius: 8px; border-top-right-radius: 8px; position: relative;">
+                        <i class="fas fa-table" style="font-size: 64px; color: var(--primary-gold);"></i>
+                        <span style="position: absolute; top: 10px; right: 10px; background-color: var(--accent-blue); color: white; padding: 5px 10px; border-radius: 4px; font-size: 0.8rem; font-weight: bold;">AR Ready</span>
+                    </div>
+                    <div class="card-content">
+                        <h3 style="margin: 0 0 5px; font-size: 1.1rem;">Acrylic Coffee Table</h3>
+                        <p style="margin: 0 0 10px; font-size: 0.9rem; opacity: 0.7;">Modern Home Furnishings</p>
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <span style="font-weight: bold; font-size: 1.2rem;">$449.99</span>
+                            <div>
+                                <button class="service-action-btn" title="Try in AR" style="color: var(--accent-blue); opacity: 1;">
+                                    <i class="fas fa-vr-cardboard"></i>
+                                </button>
+                                <button class="service-action-btn" title="Add to Cart" style="color: var(--primary-gold); opacity: 1;">
+                                    <i class="fas fa-cart-plus"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card" style="cursor: pointer;">
+                    <div style="height: 180px; display: flex; align-items: center; justify-content: center; background-color: var(--soft-gray); border-top-left-radius: 8px; border-top-right-radius: 8px; position: relative;">
+                        <i class="fas fa-lightbulb" style="font-size: 64px; color: var(--primary-gold);"></i>
+                        <span style="position: absolute; top: 10px; right: 10px; background-color: var(--accent-blue); color: white; padding: 5px 10px; border-radius: 4px; font-size: 0.8rem; font-weight: bold;">AR Ready</span>
+                    </div>
+                    <div class="card-content">
+                        <h3 style="margin: 0 0 5px; font-size: 1.1rem;">Pendant Light Cluster</h3>
+                        <p style="margin: 0 0 10px; font-size: 0.9rem; opacity: 0.7;">Modern Home Furnishings</p>
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <span style="font-weight: bold; font-size: 1.2rem;">$329.99</span>
+                            <div>
+                                <button class="service-action-btn" title="Try in AR" style="color: var(--accent-blue); opacity: 1;">
+                                    <i class="fas fa-vr-cardboard"></i>
+                                </button>
+                                <button class="service-action-btn" title="Add to Cart" style="color: var(--primary-gold); opacity: 1;">
+                                    <i class="fas fa-cart-plus"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Fetch stores data from API
+        fetchStores();
+        
+        // Fetch products data from API
+        fetchProducts();
+    });
+        });
+        });
+        
+        // Fetch stores data from API
+        fetchStores();
+        
+        // Fetch products data from API
+        fetchProducts();
+    });
+    
+    function fetchStores() {
+        fetch('/api/stores')
+            .then(response => response.json())
+            .then(data => {
+                console.log('Stores loaded:', data);
+                // In a real implementation, would update the UI with the stores data
+            })
+            .catch(error => {
+                console.error('Error loading stores:', error);
+            });
+    }
+    
+    function fetchProducts() {
+        fetch('/api/products')
+</html>
+    <!-- JavaScript for tab navigation and interactive features -->
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Add our placeholder image script
+        const script = document.createElement('script');
+        script.src = '/static/js/placeholder.js';
+        document.body.appendChild(script);
+        
+        // On initial load, make sure the dashboard tab is active
+        document.getElementById("dashboard-tab-content").classList.add("active");
+        
+        // Tab navigation
+        const tabs = document.querySelectorAll(".nav-item, .sidebar-nav-item");
+        const tabContents = document.querySelectorAll(".tab-content");
+        
+        tabs.forEach(tab => {
+            tab.addEventListener("click", function() {
+                // Remove active class from all tabs
+                tabs.forEach(t => t.classList.remove("active"));
+                
+                // Add active class to clicked tab
+                this.classList.add("active");
+                
+                // Hide all tab contents
+                tabContents.forEach(content => content.classList.remove("active"));
+                
+                // Show the corresponding tab content
+                const tabId = this.getAttribute("data-tab");
+                const tabContent = document.getElementById(tabId + "-tab-content");
+                if (tabContent) {
+                    tabContent.classList.add("active");
+                }
+                
+                // Update the header title based on the selected tab
+                const contentTitle = document.querySelector(".content-title");
+                if (contentTitle) {
+                    contentTitle.textContent = tabId.charAt(0).toUpperCase() + tabId.slice(1);
+                }
+                
+                // Initialize Elevate tab content when it's selected
+                if (tabId === "elevate" && typeof initializeElevate === "function") {
+                    setTimeout(initializeElevate, 100); // Short delay to ensure DOM is ready
+                }
+            });
+        });
+    });
+    </script>
+</body>
+</html>

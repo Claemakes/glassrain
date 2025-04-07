@@ -1,0 +1,113 @@
+<!-- Elevate tab content for GlassRain Dashboard - Optimized -->
+<div id="elevate-tab-content" class="elevate-tab-content">
+    <!-- Header with room/version controls -->
+    <div class="elevate-header">
+        <div class="elevate-tools">
+            <div class="room-selector-container">
+                <label for="room-selector">Room:</label>
+                <select id="room-selector">
+                    <option value="living-room">Living Room</option>
+                    <option value="bedroom">Bedroom</option>
+                    <option value="kitchen">Kitchen</option>
+                    <option value="bathroom">Bathroom</option>
+                    <option value="office">Home Office</option>
+                    <option value="dining">Dining Room</option>
+                </select>
+            </div>
+            
+            <div class="version-container">
+                <button id="save-version-btn" class="gold-button">Save Version</button>
+                <select id="versions-dropdown">
+                    <option value="">-- Saved Versions --</option>
+                </select>
+                <button id="load-btn" class="secondary-button">Load</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Main content area -->
+    <div class="elevate-main">
+        <!-- Room view area with 3D representation -->
+        <div class="room-view">
+            <div id="room-container" class="room-container"></div>
+            <div class="room-controls">
+                <button class="room-control-btn" id="clear-room-btn" title="Clear Room">
+                    <i class="fas fa-trash"></i> Clear Room
+                </button>
+                <!-- AR button will be added here if supported -->
+            </div>
+        </div>
+        
+        <!-- Right sidebar with products and cart -->
+        <div class="product-sidebar">
+            <!-- Filter controls -->
+            <div class="filter-controls">
+                <h3>Product Filters</h3>
+                <div class="filter-group">
+                    <label for="category-filter">Category:</label>
+                    <select id="category-filter">
+                        <option value="all">All Categories</option>
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <label for="store-filter">Store:</label>
+                    <select id="store-filter">
+                        <option value="all">All Stores</option>
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <label for="price-slider">Max Price: <span id="price-display">$0 - $1000</span></label>
+                    <input type="range" id="price-slider" min="0" max="10000" value="10000">
+                </div>
+                
+                <div class="filter-group">
+                    <label for="search-products">Search:</label>
+                    <input type="text" id="search-products" placeholder="Search products...">
+                </div>
+                
+                <button id="reset-filters" class="reset-button">Reset Filters</button>
+            </div>
+            
+            <!-- Products list -->
+            <div class="products-container">
+                <h3>Products</h3>
+                <div id="products-list" class="products-list">
+                    <!-- Product cards will be dynamically added here -->
+                </div>
+            </div>
+            
+            <!-- Shopping cart -->
+            <div class="cart-container">
+                <h3>Shopping Cart (<span id="cart-count">0</span>)</h3>
+                <div id="cart-items" class="cart-items">
+                    <!-- Cart items will be dynamically added here -->
+                    <div class="empty-cart">Your cart is empty</div>
+                </div>
+                <div class="cart-summary">
+                    <div class="cart-total">
+                        Total: <span id="cart-total">$0.00</span>
+                    </div>
+                    <div class="cart-actions">
+                        <button id="checkout-btn" class="gold-button">Checkout</button>
+                        <button id="clear-cart-btn" class="secondary-button">Clear</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Toast message container for notifications -->
+    <div id="toast-container"></div>
+</div>
+
+<!-- Include the Elevate CSS -->
+<link rel="stylesheet" href="{{ url_for('static', filename='elevate.css') }}">
+
+<!-- Include Three.js library -->
+<script src="https://cdn.jsdelivr.net/npm/three@0.150.0/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.150.0/examples/js/controls/OrbitControls.js"></script>
+
+<!-- Include optimized Elevate JS -->
+<script src="{{ url_for('static', filename='elevate_optimized.js') }}"></script>

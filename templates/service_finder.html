@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GlassRain Service Finder</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { 
+            font-family: 'Arial', sans-serif; 
+            background-color: #f8f9fa;
+        }
+        .navbar-brand {
+            font-weight: bold;
+            color: #0066cc !important;
+        }
+        .hero-section {
+            background: linear-gradient(135deg, #0066cc, #00a3e0);
+            color: white;
+            padding: 3rem 0;
+            margin-bottom: 2rem;
+        }
+        .category-card { 
+            transition: all 0.3s; 
+            cursor: pointer; 
+            border: none;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+        .category-card:hover { 
+            transform: translateY(-5px); 
+            box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+        }
+        .category-card .card-icon {
+            font-size: 2.5rem;
+            color: #0066cc;
+            margin-bottom: 1rem;
+        }
+        .service-card { 
+            margin-bottom: 15px; 
+            border: none;
+            border-radius: 12px;
+            overflow: hidden;
+            transition: all 0.3s;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+        .service-card:hover {
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+        .tier-badge { 
+            border-radius: 20px; 
+            padding: 5px 10px; 
+            font-size: 14px; 
+            margin-right: 5px; 
+            display: inline-block;
+        }
+        .silver { 
+            background-color: #C0C0C0; 
+            color: #333; 
+        }
+        .gold { 
+            background-color: #FFD700; 
+            color: #333; 
+        }
+        .diamond { 
+            background-color: #B9F2FF; 
+            color: #333; 
+        }
+        .tier-card {
+            border-radius: 10px;
+            overflow: hidden;
+            border: none;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+            transition: all 0.3s;
+        }
+        .tier-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        .back-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background-color: transparent;
+            border: 1px solid #dee2e6;
+            border-radius: 50px;
+            color: #333;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+        .back-button:hover {
+            background-color: #f8f9fa;
+            border-color: #ced4da;
+        }
+        .btn-request {
+            border-radius: 50px;
+            padding: 0.5rem 1.5rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            background-color: #0066cc;
+            border-color: #0066cc;
+        }
+        .btn-request:hover {
+            background-color: #0056b3;
+            border-color: #0056b3;
+        }
+        .spinner-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 300px;
+        }
+        .footer {
+            margin-top: 4rem;
+            padding: 2rem 0;
+            background-color: #f1f3f5;
+        }
+        .category-name {
+            position: relative;
+            display: inline-block;
+            margin-bottom: 1.5rem;
+        }
+        .category-name::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            bottom: -8px;
+            width: 50px;
+            height: 3px;
+            background-color: #0066cc;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                GlassRain
+            </a>
+        </div>
+    </nav>
+
+    <div id="app-container">
+        <!-- Hero Section -->
+        <section class="hero-section" id="hero-section">
+            <div class="container text-center">
+                <h1>Find the Perfect Service for Your Home</h1>
+                <p class="lead">Browse through our curated selection of professional home services</p>
+            </div>
+        </section>
+
+        <div class="container py-4">
+            <div id="loading" class="spinner-container">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <p class="mt-3">Loading services...</p>
+            </div>
+
+            <div id="categories-container" class="row row-cols-1 row-cols-md-3 g-4 mb-5" style="display: none;">
+                <!-- Service categories will be loaded here -->
+            </div>
+
+            <div id="services-container" style="display: none;">
+                <button id="back-to-categories" class="back-button mb-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-left" viewBox="0 0 16 16">
+                      <path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z"/>
+                    </svg>
+                    Back to Categories
+                </button>
+                <h2 id="category-title" class="category-name"></h2>
+                <div class="row" id="services-list">
+                    <!-- Services will be loaded here -->
+                </div>
+            </div>
+        </div>
+
+        <footer class="footer">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h5>GlassRain Home Services</h5>
+                        <p>Find trusted professionals for all your home service needs</p>
+                    </div>
+                    <div class="col-md-6 text-md-end">
+                        <p>© 2025 GlassRain. All rights reserved.</p>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        // Category icons mapping (Font Awesome style)
+        const iconMapping = {
+            'lawn': 'fa-leaf',
+            'cleaning': 'fa-broom',
+            'plumbing': 'fa-wrench',
+            'hvac': 'fa-temperature-high',
+            'electrical': 'fa-bolt',
+            'roofing': 'fa-home',
+            'painting': 'fa-paint-roller',
+            'pest': 'fa-bug',
+            'windows': 'fa-window-maximize',
+            'smarttech': 'fa-wifi',
+            'seasonal': 'fa-snowflake',
+            'trash': 'fa-trash',
+            'maintenance': 'fa-tools',
+            'interior': 'fa-couch',
+            'exterior': 'fa-house-damage'
+        };
+        
+        // Get an icon for a category, default to 'fa-home' if not found
+        function getCategoryIcon(iconKey) {
+            const iconClass = iconMapping[iconKey] || 'fa-home';
+            return `<i class="fas ${iconClass}"></i>`;
+        }
+    
+        // Fetch and display service categories
+        async function loadCategories() {
+            try {
+                const response = await fetch('/api/service-categories');
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const categories = await response.json();
+                
+                const container = document.getElementById('categories-container');
+                container.innerHTML = '';
+                
+                categories.forEach(category => {
+                    const card = document.createElement('div');
+                    card.className = 'col';
+                    card.innerHTML = `
+                        <div class="card h-100 category-card" data-id="${category.id}">
+                            <div class="card-body text-center p-4">
+                                <div class="card-icon">
+                                    <i class="fas fa-${category.icon || 'home'}"></i>
+                                </div>
+                                <h5 class="card-title">${category.name}</h5>
+                                <p class="card-text text-muted">${category.description}</p>
+                            </div>
+                            <div class="card-footer bg-transparent border-top-0 text-center p-3">
+                                <button class="btn btn-outline-primary rounded-pill px-4">Browse Services</button>
+                            </div>
+                        </div>
+                    `;
+                    container.appendChild(card);
+                    
+                    // Add click event
+                    card.querySelector('.category-card').addEventListener('click', () => {
+                        loadServices(category.id, category.name);
+                    });
+                });
+                
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('hero-section').style.display = 'block';
+                container.style.display = 'flex';
+            } catch (error) {
+                console.error('Error loading categories:', error);
+                document.getElementById('loading').innerHTML = 
+                    '<div class="alert alert-danger">Error loading service categories. Please try again later.</div>';
+            }
+        }
+        
+        // Fetch and display services for a specific category
+        async function loadServices(categoryId, categoryName) {
+            try {
+                document.getElementById('loading').style.display = 'flex';
+                document.getElementById('categories-container').style.display = 'none';
+                document.getElementById('services-container').style.display = 'none';
+                
+                const response = await fetch(`/api/services?category_id=${categoryId}`);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const data = await response.json();
+                
+                document.getElementById('loading').style.display = 'none';
+                
+                if (data.length === 0 || data[0].services.length === 0) {
+                    document.getElementById('services-list').innerHTML = 
+                        '<div class="col-12"><div class="alert alert-info">No services found in this category.</div></div>';
+                    document.getElementById('services-container').style.display = 'block';
+                    return;
+                }
+                
+                const category = data[0]; // Since we filtered by category_id, there's only one category
+                const services = category.services;
+                
+                document.getElementById('category-title').textContent = categoryName;
+                
+                const container = document.getElementById('services-list');
+                container.innerHTML = '';
+                
+                // Also fetch service tiers to display pricing options
+                const tiersResponse = await fetch('/api/service-tiers');
+                if (!tiersResponse.ok) {
+                    throw new Error(`HTTP error! status: ${tiersResponse.status}`);
+                }
+                const tiers = await tiersResponse.json();
+                
+                services.forEach(service => {
+                    const card = document.createElement('div');
+                    card.className = 'col-md-6 mb-4';
+                    
+                    // Determine pricing display based on service data
+                    let pricingHtml = '';
+                    if (service.base_price_per_sqft) {
+                        // Per square foot pricing with tiers
+                        pricingHtml = `
+                            <h6 class="mt-4 mb-3">Pricing Options (per sq ft)</h6>
+                            <div class="row row-cols-1 row-cols-md-3 g-3">
+                                ${tiers.map(tier => `
+                                    <div class="col">
+                                        <div class="tier-card">
+                                            <div class="card-body p-3">
+                                                <span class="tier-badge ${tier.name.toLowerCase()} mb-2">${tier.name}</span>
+                                                <h5 class="mb-1">$${(service.base_price_per_sqft * tier.multiplier).toFixed(2)}</h5>
+                                                <small class="text-muted">${tier.description}</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                            <p class="text-muted mt-3">Minimum charge: $${service.min_price.toFixed(2)}</p>
+                        `;
+                    } else {
+                        // Fixed price service with tiers
+                        pricingHtml = `
+                            <h6 class="mt-4 mb-3">Pricing Options</h6>
+                            <div class="row row-cols-1 row-cols-md-3 g-3">
+                                ${tiers.map(tier => `
+                                    <div class="col">
+                                        <div class="tier-card">
+                                            <div class="card-body p-3">
+                                                <span class="tier-badge ${tier.name.toLowerCase()} mb-2">${tier.name}</span>
+                                                <h5 class="mb-1">$${(service.base_price * tier.multiplier).toFixed(2)}</h5>
+                                                <small class="text-muted">${tier.description}</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        `;
+                    }
+                    
+                    card.innerHTML = `
+                        <div class="card h-100 service-card">
+                            <div class="card-body p-4">
+                                <h4 class="card-title mb-3">${service.name}</h4>
+                                <p class="card-text">${service.description}</p>
+                                ${pricingHtml}
+                            </div>
+                            <div class="card-footer bg-transparent px-4 py-3">
+                                <button class="btn btn-primary btn-request">Request Quote</button>
+                            </div>
+                        </div>
+                    `;
+                    
+                    container.appendChild(card);
+                });
+                
+                // Show services view, hide categories
+                document.getElementById('hero-section').style.display = 'none';
+                document.getElementById('categories-container').style.display = 'none';
+                document.getElementById('services-container').style.display = 'block';
+            } catch (error) {
+                console.error('Error loading services:', error);
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('services-list').innerHTML = 
+                    '<div class="col-12"><div class="alert alert-danger">Error loading services. Please try again later.</div></div>';
+                document.getElementById('services-container').style.display = 'block';
+            }
+        }
+        
+        // Handle back button
+        document.getElementById('back-to-categories').addEventListener('click', () => {
+            document.getElementById('services-container').style.display = 'none';
+            document.getElementById('hero-section').style.display = 'block';
+            document.getElementById('categories-container').style.display = 'flex';
+        });
+        
+        // Initialize the app
+        document.addEventListener('DOMContentLoaded', loadCategories);
+    </script>
+    
+    <!-- Font Awesome for icons -->
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+</body>
+</html>
